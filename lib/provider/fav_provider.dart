@@ -32,14 +32,37 @@ class FavNotifier extends StateNotifier<FavState> {
   }
 
   void filterList(String search) {
-
-  state = state.copyWith(
+    state = state.copyWith(
       favfiltered: _filterItems(state.allItems, search),
-      search: search, allItems: [],
+      search: search,
+      allItems: [],
     );
-
   }
 
+  List<Items> _favitem(List<Items> items, String option) {
+    if (option.isEmpty) {
+      return items;
+    }
+    if (option == 'true') {
+      return items.where((item) => item.fav).toList();
+    } else if (option == 'false') {
+      return items.where((item) => !item.fav).toList();
+    } else {
+      return items
+          .where(
+            (item) => item.name.toLowerCase().contains(option.toLowerCase()),
+          )
+          .toList();
+    }
+  }
+
+  void fav(String option) {
+    state = state.copyWith(
+      favfiltered: _favitem(state.allItems, option),
+      search: option,
+      allItems: [],
+    );
+  } 
 
   List<Items> _filterItems(List<Items> items, String search) {
     if (search.isEmpty) {
@@ -50,7 +73,7 @@ class FavNotifier extends StateNotifier<FavState> {
         .where((item) => item.name.toLowerCase().contains(search.toLowerCase()))
         .toList();
   }
-   
+
   void toggleFav(int id) {
     List<Items> updatedItems = state.favfiltered.map((item) {
       if (item.id == id) {

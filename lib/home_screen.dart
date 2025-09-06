@@ -9,7 +9,32 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favList = ref.watch(favProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Counter App')),
+      appBar: AppBar(title: const Text('Counter App') ,
+       
+      actions: [
+        PopupMenuButton(
+         
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'all',
+              child: Text('All Items'),
+            ),
+            const PopupMenuItem(
+              value: 'favorites',
+              child: Text('Favorites'),
+            ),
+          ],
+          onSelected: (value) {
+            if (value == 'all') {
+              ref.read(favProvider.notifier).filterList('');
+            } else if (value == 'favorites') {
+              ref.read(favProvider.notifier).filterList('true');
+            }
+          },
+        ),
+      ],
+      
+      ),
       body: Column(
         children: [
           TextField(
