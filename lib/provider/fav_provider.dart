@@ -31,11 +31,27 @@ class FavNotifier extends StateNotifier<FavState> {
     );
   }
 
-  void filterList(String search) {
+  void filterList(String searchOrFav) {
+    List<Items> filtered = state.allItems;
+
+    // If filtering favorites
+    if (searchOrFav == 'true') {
+      filtered = filtered.where((item) => item.fav).toList();
+    } else if (searchOrFav == 'false') {
+      filtered = filtered.where((item) => !item.fav).toList();
+    } else if (searchOrFav.isNotEmpty) {
+      filtered = filtered
+          .where(
+            (item) =>
+                item.name.toLowerCase().contains(searchOrFav.toLowerCase()),
+          )
+          .toList();
+    }
+
     state = state.copyWith(
-      favfiltered: _filterItems(state.allItems, search),
-      search: search,
-      allItems: [],
+      favfiltered: filtered,
+      search: searchOrFav,
+      allItems: state.allItems,
     );
   }
 
@@ -60,9 +76,9 @@ class FavNotifier extends StateNotifier<FavState> {
     state = state.copyWith(
       favfiltered: _favitem(state.allItems, option),
       search: option,
-      allItems: [],
+      allItems: state.allItems,
     );
-  } 
+  }
 
   List<Items> _filterItems(List<Items> items, String search) {
     if (search.isEmpty) {
@@ -75,13 +91,24 @@ class FavNotifier extends StateNotifier<FavState> {
   }
 
   void toggleFav(int id) {
-    List<Items> updatedItems = state.favfiltered.map((item) {
+    List<Items> updatedAllItems = state.allItems.map((item) {
       if (item.id == id) {
         return Items(name: item.name, id: item.id, fav: !item.fav);
       }
       return item;
     }).toList();
 
-    state = state.copyWith(favfiltered: updatedItems, allItems: [], search: '');
+    List<Items> updatedFavFiltered = state.favfiltered.map((item) {
+      if (item.id == id) {
+        return Items(name: item.name, id: item.id, fav: !item.fav);
+      }
+      return item;
+    }).toList();
+
+    state = state.copyWith(
+      favfiltered: updatedFavFiltered,
+      allItems: updatedAllItems,
+      search: state.search,
+    );
   }
 }
